@@ -10,13 +10,12 @@ class SudokuSolver
   end
 
   def solve(grid)
-    if valid_solution?(grid)
-      grid
-    else
+   # if valid_solution?(grid)
+   #   grid
+   # else
       possibilities = generate_possibilities(grid)
       binding.pry
-      moves = select_best_moves(possibilities)
-    end
+      moves = select_best_move(possibilities)
   end
 
   private
