@@ -6,26 +6,36 @@ class SudokuSolver
   end
   def generate_output_string
     parse_input
-    generate_possibilities
+    solve(@grid)
+  end
+
+  def solve(grid)
+    if valid_solution?(grid)
+      grid
+    else
+      possibilities = generate_possibilities(grid)
+      binding.pry
+      moves = select_best_moves(possibilities)
+    end
   end
 
   private
 
-  def generate_possibilities
-    @possibilities = Marshal.load(Marshal.dump(@grid))
-    @possibilities.each_with_index do |line,lindex|
+  def generate_possibilities(grid)
+    possibilities = Marshal.load(Marshal.dump(grid))
+    possibilities.each_with_index do |line,lindex|
       line.each_with_index do |cell,cindex|
         if cell.nil?
-          values = check_box(lindex,cindex)
-          values = check_column(cindex,values)
-          values = check_line(lindex,values)
-          @possibilities[lindex][cindex] = values
+          values = check_box(lindex,cindex,grid)
+          values = check_column(cindex,values,grid)
+          values = check_line(lindex,values,grid)
+          possibilities[lindex][cindex] = values
         else
-          @possibilities[lindex][cindex] = [cell]
+          possibilities[lindex][cindex] = [cell]
         end
       end
     end
-    binding.pry
+    possibilities
   end
 
   def parse_input
@@ -46,43 +56,43 @@ class SudokuSolver
     end
   end
   
-  def check_box(lindex,cindex)
+  def check_box(lindex,cindex,grid)
     line_offset = lindex.divmod(3).first
     case line_offset
       when 0
         coors = ((0..2).to_a.product((0..2).to_a)) - [[lindex,cindex]]
-        extract_box_values(coors)
+        extract_box_values(coors,grid)
       when 1
         coors = ((3..5).to_a.product((3..5).to_a)) - [[lindex,cindex]]
-        extract_box_values(coors)
+        extract_box_values(coors,grid)
       when 2
         coors = ((6..-1).to_a.product((6..-1).to_a)) - [[lindex,cindex]]
-        extract_box_values(coors)
+        extract_box_values(coors,grid)
     end
   end
   
-  def extract_box_values(coordinate_list)
+  def extract_box_values(coordinate_list,grid)
     possible_values = (1..9).to_a
     coordinate_list.each do |coordinate|
-      if @grid[coordinate.first][coordinate.last]
-        possible_values = possible_values - [@grid[coordinate.first][coordinate.last]]
+      if grid[coordinate.first][coordinate.last]
+        possible_values = possible_values - [grid[coordinate.first][coordinate.last]]
       end
     end
     possible_values
   end
 
-  def check_column(cindex,curent_values)
+  def check_column(cindex,curent_values,grid)
     column_values = []
     (0..8).each do |line_index|
-      column_values.push @grid.at(line_index).at(cindex) unless @grid.at(line_index).at(cindex).nil?
+      column_values.push grid.at(line_index).at(cindex) unless grid.at(line_index).at(cindex).nil?
     end
     curent_values - column_values
   end
   
-  def check_line(lindex,curent_values)
+  def check_line(lindex,curent_values,grid)
     line_values = []
     (0..8).each do |column_index|
-      line_values.push @grid.at(lindex).at(column_index) unless @grid.at(lindex).at(column_index).nil?
+      line_values.push grid.at(lindex).at(column_index) unless grid.at(lindex).at(column_index).nil?
     end
     curent_values - line_values
   end
