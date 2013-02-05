@@ -6,16 +6,28 @@ class SudokuSolver
   end
   def generate_output_string
     parse_input
-    solve(@grid)
+    solve
   end
 
-  def solve(grid)
-   # if valid_solution?(grid)
-   #   grid
-   # else
-      possibilities = generate_possibilities(grid)
-      binding.pry
-      moves = select_best_move(possibilities)
+  def solve
+    closedset = []
+    openset = []
+    openset.push @grid
+    until openset.empty?
+      grid_state = openset.pop 
+      if valid_solution?(grid_state)
+        return grid_state
+      else
+        closedset.push grid_state
+        possibilities = generate_possibilities(grid_state)
+        moves = select_best_moves(possibilities)
+        moves.each_pair do |coordinates,value|
+          next_grid_state = make_move(coordinates,value,grid_state)
+          next if closedset.include? next_grid_state
+          openset.push next_grid_state
+        end
+      end
+    end
   end
 
   private
@@ -94,5 +106,21 @@ class SudokuSolver
       line_values.push grid.at(lindex).at(column_index) unless grid.at(lindex).at(column_index).nil?
     end
     curent_values - line_values
+  end
+
+  def valid_solution?(grid)
+    grid.flatten.compact.each do |val|
+      if grid.count(val) != 9
+        return false
+      end
+    end
+    return true
+  end
+
+  def select_best_moves(possibilities)
+    sorted_possibilities = possibilities.flatten(1).delete_if{|x| x.size <2}.sort{|a,b| a.size <=> b.size}
+    best_options = sorted_possibilities.take_while{|x| x.size <= sorted_possibilities.first.size}
+    index_moves = {}
+    binding.pry
   end
 end
