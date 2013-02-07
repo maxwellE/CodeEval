@@ -1,4 +1,5 @@
-require 'pry'
+#!/usr/bin/env ruby -wKU
+
 class BalancedSmileys
   def initialize(smile_string)
     @smile_string = smile_string
@@ -30,5 +31,12 @@ class BalancedSmileys
   def valid?
     return "YES" if is_balanced?(@smile_string,0)
     "NO"
+  end
+end
+
+if $0 == __FILE__
+  File.open(ARGV[0]).each_line do |line|
+    bs = BalancedSmileys.new(line.strip)
+    puts bs.valid?
   end
 end
