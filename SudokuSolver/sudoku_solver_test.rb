@@ -2,7 +2,7 @@ gem 'minitest'
 require 'minitest/autorun'
 require 'minitest/spec'
 require 'minitest/pride'
-
+require 'pry'
 require_relative "sudoku_solver"
 
 describe SudokuSolver do
